@@ -5,33 +5,40 @@ FROM kozhin/rails:latest
 MAINTAINER Konstantin Kozhin <konstantin@profitco.ru>
 LABEL Description="This image runs Ruby on Rails server for production" Vendor="ProfitCo" Version="1.0"
 
-# Install Passenger repositories
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 561F9B9CAC40B2F7
-RUN apt-get install -y apt-transport-https ca-certificates
+# Install necessary packages
+RUN apt-get install libcurl4-openssl-dev -y \
+&& apt-get clean all
 
-# Add our APT repository
-RUN sh -c 'echo deb https://oss-binaries.phusionpassenger.com/apt/passenger jessie main > /etc/apt/sources.list.d/passenger.list'
-RUN apt-get update
-
-# Install Passenger + Nginx
-RUN apt-get install -y nginx-extras passenger
+# Install Passenger
+RUN bash -c "source ~/.bash_profile \
+&& gem install passenger --no-rdoc --no-ri \
+&& passenger-install-nginx-module --auto \
+&& ln -s /opt/nginx/sbin/nginx /usr/sbin/nginx \
+&& chmod 755 /root"
 
 # Copy configuration files for nginx
-COPY nginx.conf /etc/nginx/
-COPY rails-application.conf /etc/nginx/sites-enabled/
+COPY nginx.conf /opt/nginx/conf/
+COPY passenger.conf /opt/nginx/conf/
+COPY rails-application.conf /opt/nginx/conf/
 
 # Create and set application folder
 RUN mkdir -p /app
 WORKDIR /app
 
-# Prepare to build gems
-ONBUILD COPY Gemfile /app/
-ONBUILD COPY Gemfile.lock /app/
+# Copy application inside container
+ONBUILD COPY . /app/
 
 # Update bash and install Rails application gems
 ONBUILD RUN bash -c "source ~/.bash_profile \
 && bundle install \
+&& RAILS_ENV=production rails db:migrate \
 && RAILS_ENV=production rails assets:precompile"
+
+# Create secret key for the application
+ONBUILD RUN bash -c 'source ~/.bash_profile \
+&& echo Generating secret key... \
+&& echo "env SECRET_KEY_BASE=$(bundle exec rake secret);" > /opt/nginx/conf/secret.key \
+&& echo Done'
 
 # Set port to listen
 EXPOSE 3000
