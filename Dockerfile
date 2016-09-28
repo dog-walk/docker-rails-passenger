@@ -31,8 +31,7 @@ ONBUILD COPY . /app/
 # Update bash and install Rails application gems
 ONBUILD RUN bash -c 'source ~/.bash_profile \
 && bundle install \
-&& RAILS_ENV=production rails db:migrate db:populate \
-&& chmod -R 777 /app/db \
+&& RAILS_ENV=production rails db:migrate \
 && RAILS_ENV=production rails assets:precompile'
 
 # Create secret key for the application
