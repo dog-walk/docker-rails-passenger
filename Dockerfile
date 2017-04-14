@@ -70,7 +70,7 @@ RUN bash -c 'source ~/.bash_profile \
 # Copy configuration files for Nginx
 COPY nginx.conf /opt/nginx/conf/
 COPY passenger.conf /opt/nginx/conf/
-COPY rails-application.conf /opt/nginx/conf/
+COPY application.conf /opt/nginx/conf/
 COPY setup.sh /
 
 # Update Nginx conf accordingly software installed
