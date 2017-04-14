@@ -88,7 +88,6 @@ ONBUILD COPY . /app/
 # Update bash and install Rails application gems
 ONBUILD RUN bash -c 'source ~/.bash_profile \
 && bundle install \
-&& rails db:migrate \
 && rails assets:precompile'
 
 # Create secret key for the application
