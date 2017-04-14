@@ -5,9 +5,8 @@ FROM kozhin/rails:latest
 MAINTAINER Konstantin Kozhin <konstantin@profitco.ru>
 LABEL Description="This image runs Ruby on Rails server for production" Vendor="ProfitCo" Version="1.0"
 
-# Install necessary packages
-RUN apt-get install libcurl4-openssl-dev -y \
-&& apt-get clean all
+# Install Google PageSpeed module for Nginx
+
 
 # Install Passenger
 RUN bash -c 'source ~/.bash_profile \
@@ -41,7 +40,7 @@ ONBUILD RUN bash -c 'source ~/.bash_profile \
 && echo Done'
 
 # Set port to listen
-EXPOSE 3000
+EXPOSE 80 443
 
 # Define entrypoint
 ENTRYPOINT nginx
