@@ -9,7 +9,7 @@ LABEL Description="This image runs Ruby on Rails server for production" Vendor="
 ENV RAILS_ENV=production \
     SRC_PATH=/src \
     NPS_VERSION=1.12.34.2 \
-    NGINX_VERSION=1.12.0
+    NGINX_VERSION=1.13.0
 
 # Use SRC_PATH as a working dir
 WORKDIR $SRC_PATH
