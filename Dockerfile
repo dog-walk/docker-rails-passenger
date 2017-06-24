@@ -5,11 +5,14 @@ FROM kozhin/rails:latest
 MAINTAINER Konstantin Kozhin <konstantin@profitco.ru>
 LABEL Description="This image runs Ruby on Rails server for production" Vendor="ProfitCo" Version="1.0"
 
+# Install packages
+RUN apt-get update && apt-get install libcurl4-openssl-dev libpcre3 libpcre3-dev unzip -y && apt-get clean all
+
 # Setup Environment
 ENV RAILS_ENV=production \
     SRC_PATH=/src \
     NPS_VERSION=1.12.34.2 \
-    NGINX_VERSION=1.13.0
+    NGINX_VERSION=1.13.1
 
 # Use SRC_PATH as a working dir
 WORKDIR $SRC_PATH
@@ -64,7 +67,7 @@ RUN bash -c 'source ~/.bash_profile \
         --with-ld-opt=\"-Wl,-Bsymbolic-functions -Wl,-z,relro -Wl,--as-needed\" \
         --add-module=${SRC_PATH}/ngx_pagespeed-${NPS_VERSION}-beta" \
     && ln -s /opt/nginx/sbin/nginx /usr/sbin/nginx \
-    && rm -Rf /src/* \
+    && rm -Rf $SRC_PATH/* \
     && chmod +x /root'
 
 # Copy configuration files for Nginx
@@ -96,8 +99,15 @@ ONBUILD RUN bash -c 'source ~/.bash_profile \
 && echo "env SECRET_KEY_BASE=$(bundle exec rake secret);" > /opt/nginx/conf/secret.key \
 && echo Done'
 
+# Send request and error logs to docker log collector
+RUN ln -sf /dev/stdout /opt/nginx/logs/access.log \
+    && ln -sf /dev/stderr /opt/nginx/logs/error.log
+
 # Set port to listen
 EXPOSE 80 443
 
-# Define entrypoint
-ENTRYPOINT nginx
+# Stop signal for container
+STOPSIGNAL SIGTERM
+
+# Define entrypoint for container
+CMD ["nginx", "-g", "daemon off;"]
