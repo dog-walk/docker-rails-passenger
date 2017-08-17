@@ -14,7 +14,7 @@ RUN apt-get update \
 ENV SRC_PATH=/src \
     NPS_VERSION=1.12.34.2 \
     NGINX_VERSION=1.13.3 \
-    NGINX_PATH=/usr/local/nginx
+    NGINX_PATH=/opt/nginx
 
 # Use SRC_PATH as a working dir
 WORKDIR $SRC_PATH

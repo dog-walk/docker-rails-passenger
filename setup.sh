@@ -18,6 +18,6 @@ RUBY_BRANCH_VERSION="$(echo $RUBY_VERSION | cut -d '.' -f 1).$(echo $RUBY_VERSIO
 # 2.3.0
 # echo $RUBY_BRANCH_VERSION
 
-sed -i -e "s/RUBY_VERSION/${RUBY_VERSION}/g" /opt/nginx/conf/passenger.conf
-sed -i -e "s/RUBY_BRANCH_VERSION/${RUBY_BRANCH_VERSION}/g" /opt/nginx/conf/passenger.conf
-sed -i -e "s/PASSENGER_VERSION/${PASSENGER_VERSION}/g" /opt/nginx/conf/passenger.conf
+sed -i -e "s/RUBY_VERSION/${RUBY_VERSION}/g" ${NGINX_PATH}/conf/passenger.conf
+sed -i -e "s/RUBY_BRANCH_VERSION/${RUBY_BRANCH_VERSION}/g" ${NGINX_PATH}/conf/passenger.conf
+sed -i -e "s/PASSENGER_VERSION/${PASSENGER_VERSION}/g" ${NGINX_PATH}/conf/passenger.conf
