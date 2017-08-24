@@ -6,41 +6,33 @@ MAINTAINER Konstantin Kozhin <konstantin@profitco.ru>
 LABEL Description="This image runs Ruby on Rails server for production" Vendor="ProfitCo" Version="1.0"
 
 # Install required packages
-RUN apt-get update \
-    && apt-get install wget curl vim openssl libssl-dev libcurl4-openssl-dev zlib1g-dev libpcre3 libpcre3-dev unzip -y \
-    && apt-get clean all
+RUN apt-get update && apt-get install libcurl4-openssl-dev -y && apt-get clean all
 
 # Setup Environment
-ENV SRC_PATH=/src \
-    NPS_VERSION=1.12.34.2 \
-    NGINX_VERSION=1.13.3 \
-    NGINX_PATH=/opt/nginx
+ENV NODE_ENV production
+ENV RAILS_ENV production
+ENV SRC_PATH /src
+ENV NPS_VERSION 1.12.34.2
+ENV NGINX_VERSION 1.13.4
+ENV NGINX_PATH /opt/nginx
 
-# Use SRC_PATH as a working dir
+# Set working directory for SRC_PATH (create if none)
 WORKDIR $SRC_PATH
 
-# Get the latest stable Nginx PageSpeed module sources
-RUN wget https://github.com/pagespeed/ngx_pagespeed/archive/latest-stable.tar.gz \
-    && tar -xzf latest-stable.tar.gz \
-    && rm latest-stable.tar.gz \
-    && cd ngx_pagespeed-latest-stable \
-    && PSOL_URL=https://dl.google.com/dl/page-speed/psol/${NPS_VERSION}.tar.gz \
-    && [ -e scripts/format_binary_url.sh ] && PSOL_URL=$(scripts/format_binary_url.sh PSOL_BINARY_URL) \
-    && wget ${PSOL_URL} \
-    && tar -xzvf $(basename ${PSOL_URL})
-
-# Download and install Nginx web-server
+# Download Nginx
+RUN cd $SRC_PATH
 RUN wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
     && tar -xzf nginx-${NGINX_VERSION}.tar.gz \
     && rm nginx-${NGINX_VERSION}.tar.gz
 
-# Install Passenger
+# Install Passenger gem
 RUN bash -c 'source ~/.bash_profile \
     && gem install passenger --no-rdoc --no-ri'
 
-# Build Nginx with modules
+# Build Nginx with Passenger module
 RUN bash -c 'source ~/.bash_profile \
     && passenger-install-nginx-module --auto \
+        --prefix=${NGINX_PATH} \
         --nginx-source-dir=${SRC_PATH}/nginx-${NGINX_VERSION} \
         --extra-configure-flags=" \
         --with-file-aio \
@@ -64,14 +56,11 @@ RUN bash -c 'source ~/.bash_profile \
         --with-mail_ssl_module \
         --with-stream \
         --with-stream_ssl_module \
-        --with-threads \
-        --with-cc-opt=\"-g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2\" \
-        --with-ld-opt=\"-Wl,-Bsymbolic-functions -Wl,-z,relro -Wl,--as-needed\" \
-        --add-module=$SRC_PATH/ngx_pagespeed-latest-stable" \
+        --with-threads" \
     && ln -s $NGINX_PATH/sbin/nginx /usr/sbin/nginx \
     && ln -s $NGINX_PATH /etc/nginx \
     && rm -Rf $SRC_PATH/* \
-    && chmod +x /root'
+    && chmod o+x /root'
 
 # Set new working dir
 WORKDIR $NGINX_PATH
@@ -96,7 +85,7 @@ ONBUILD COPY . /app/
 
 # Update bash and install Rails application gems
 ONBUILD RUN bash -c 'source ~/.bash_profile \
-    && npm run build \
+    && npm i && npm run build \
     && bundle install \
     && rails assets:precompile'
 
