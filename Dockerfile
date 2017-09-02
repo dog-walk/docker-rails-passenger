@@ -80,21 +80,6 @@ RUN bash -c 'source ~/.bash_profile \
 RUN mkdir -p /app
 WORKDIR /app
 
-# Copy application inside container
-ONBUILD COPY . /app/
-
-# Update bash and install Rails application gems
-ONBUILD RUN bash -c 'source ~/.bash_profile \
-    && npm i && npm run build \
-    && bundle install \
-    && rails assets:precompile'
-
-# Create secret key for the application
-ONBUILD RUN bash -c 'source ~/.bash_profile \
-    && echo Generating secret key... \
-    && echo "env SECRET_KEY_BASE=$(bundle exec rake secret);" > /opt/nginx/conf/secret.key \
-    && echo Done'
-
 # Send request and error logs to docker log collector
 RUN ln -sf /dev/stdout $NGINX_PATH/logs/access.log \
     && ln -sf /dev/stderr $NGINX_PATH/logs/error.log
@@ -106,4 +91,4 @@ EXPOSE 80 443
 STOPSIGNAL SIGTERM
 
 # Define entrypoint for container
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
