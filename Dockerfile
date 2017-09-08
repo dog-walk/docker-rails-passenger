@@ -13,14 +13,13 @@ ENV NODE_ENV production
 ENV RAILS_ENV production
 ENV SRC_PATH /src
 ENV NPS_VERSION 1.12.34.2
-ENV NGINX_VERSION 1.13.4
+ENV NGINX_VERSION 1.13.5
 ENV NGINX_PATH /opt/nginx
 
 # Set working directory for SRC_PATH (create if none)
 WORKDIR $SRC_PATH
 
 # Download Nginx
-RUN cd $SRC_PATH
 RUN wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
     && tar -xzf nginx-${NGINX_VERSION}.tar.gz \
     && rm nginx-${NGINX_VERSION}.tar.gz
