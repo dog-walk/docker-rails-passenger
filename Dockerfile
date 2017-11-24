@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install libcurl4-openssl-dev -y && apt-get clean a
 ENV NODE_ENV production
 ENV RAILS_ENV production
 ENV SRC_PATH /src
-ENV NGINX_VERSION 1.13.6
+ENV NGINX_VERSION 1.13.7
 ENV NGINX_PATH /opt/nginx
 
 # Set working directory for SRC_PATH (create if none)
