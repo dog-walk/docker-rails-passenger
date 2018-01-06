@@ -2,8 +2,10 @@
 FROM kozhin/rails:latest
 
 # Set maintainer and image indo
-MAINTAINER Konstantin Kozhin <konstantin@profitco.ru>
-LABEL Description="This image runs Ruby on Rails server for production" Vendor="ProfitCo" Version="1.0"
+LABEL Description="This image runs Ruby on Rails server for production" \
+      Vendor="CodedRed" \
+      Version="1.0" \
+      Maintainer="Konstantin Kozhin <konstantin@codedred.com>"
 
 # Install required packages
 RUN apt-get update && apt-get install libcurl4-openssl-dev -y && apt-get clean all
@@ -12,7 +14,7 @@ RUN apt-get update && apt-get install libcurl4-openssl-dev -y && apt-get clean a
 ENV NODE_ENV production
 ENV RAILS_ENV production
 ENV SRC_PATH /src
-ENV NGINX_VERSION 1.13.7
+ENV NGINX_VERSION 1.13.8
 ENV NGINX_PATH /opt/nginx
 
 # Set working directory for SRC_PATH (create if none)
